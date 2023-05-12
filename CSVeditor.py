@@ -14,12 +14,16 @@ from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHeaderView,
     QStackedWidget, QStatusBar, QTabWidget, QTableWidget,
     QTableWidgetItem, QWidget,QFileDialog, QVBoxLayout)
 import ressource, sys, csv
+from string import ascii_uppercase
+
+
 
 class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(797, 698)
+        MainWindow.setWindowModality(Qt.ApplicationModal)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -72,6 +76,9 @@ class Ui_MainWindow(QMainWindow):
         self.tab = QWidget()
         self.tab.setObjectName(u"tab")
         self.tabWidget.addTab(self.tab, "")
+        self.tab2 = QWidget()
+        self.tab2.setObjectName(u"tab2")
+        self.tabWidget.addTab(self.tab2, "")
         self.stackedWidget = QStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName(u"stackedWidget")
         self.stackedWidget.setGeometry(QRect(0, 30, 799, 551))
@@ -80,7 +87,36 @@ class Ui_MainWindow(QMainWindow):
         self.table1 = QTableWidget(self.page)
         self.table1.setObjectName(u"table1")
         self.table1.setGeometry(QRect(0, 0, 799, 581))
+        self.table1.setRowCount(100)
+        self.table1.setColumnCount(100)
+
+        cols = [chr(i) for i in range(ord('A'), ord('Z')+1)]
+
+        # Add second set of column labels (AA to AZ)
+        for i in range(ord('A'), ord('Z')+1):
+            cols.append('A' + chr(i))
+
+        # Set row labels (numbers 1 to 100)
+        rows = [str(i+1) for i in range(100)]
+
+        # Set up table with row and column labels
+        self.table1.setColumnCount(len(cols))
+        self.table1.setRowCount(len(rows))
+        self.table1.setHorizontalHeaderLabels(cols)
+        self.table1.setVerticalHeaderLabels(rows)
+
+        # Set each cell to an empty QTableWidgetItem
+        for i in range(len(rows)):
+            for j in range(len(cols)):
+                self.table1.setItem(i, j, QTableWidgetItem(""))
+
+        self.page2 = QWidget()
+        self.page2.setObjectName(u"page2")
+        self.table2 = QTableWidget(self.page2)
+        self.table2.setObjectName(u"table2")
+        self.table2.setGeometry(QRect(0, 0, 799, 581))
         self.stackedWidget.addWidget(self.page)
+        self.stackedWidget.addWidget(self.page2)
         self.header = QFrame(self.centralwidget)
         self.header.setObjectName(u"header")
         self.header.setGeometry(QRect(0, -21, 799, 71))
@@ -268,6 +304,7 @@ class Ui_MainWindow(QMainWindow):
         self.actionGithub_repo.setText(QCoreApplication.translate("MainWindow", u"Github repo", None))
         self.actionHelp.setText(QCoreApplication.translate("MainWindow", u"Help", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Table 1", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), QCoreApplication.translate("MainWindow", u"Table 2", None))
         self.italic_button.setText(QCoreApplication.translate("MainWindow", u"I", None))
         self.bold_button.setText(QCoreApplication.translate("MainWindow", u"B", None))
         self.normal_button.setText(QCoreApplication.translate("MainWindow", u"A", None))
