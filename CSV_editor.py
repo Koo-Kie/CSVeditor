@@ -11,9 +11,8 @@ from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHeaderView,
     QLabel, QLineEdit, QMainWindow, QMenu,
     QMenuBar, QPushButton, QSizePolicy, QSpinBox,
     QStackedWidget, QStatusBar, QTabWidget, QTableWidget,
-    QTableWidgetItem, QWidget,QFileDialog, QVBoxLayout, QHBoxLayout, QMessageBox)
-import ressource, sys, csv
-from string import ascii_uppercase
+    QTableWidgetItem, QWidget,QFileDialog, QVBoxLayout, QHBoxLayout, QColorDialog)
+import ressource, sys, csv, webbrowser
 
 class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
@@ -54,20 +53,24 @@ class Ui_MainWindow(QMainWindow):
         icon3.addFile(u":/icons/icons/plus-square.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.actionNew.setIcon(icon3)
         self.actionNew.triggered.connect(self.add_table_page)
-
         self.actionCreate_table = QAction(MainWindow)
         self.actionCreate_table.setObjectName(u"actionCreate_table")
         self.actionCreate_table.setIcon(icon3)
+
         self.actionGithub_repo = QAction(MainWindow)
         self.actionGithub_repo.setObjectName(u"actionGithub_repo")
         icon4 = QIcon()
         icon4.addFile(u":/icons/icons/terminal.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.actionGithub_repo.setIcon(icon4)
+        self.actionGithub_repo.triggered.connect(lambda : self.web_ressources('https://github.com/Koo-Kie/CSVeditor'))
+
         self.actionHelp = QAction(MainWindow)
         self.actionHelp.setObjectName(u"actionHelp")
         icon5 = QIcon()
         icon5.addFile(u":/icons/icons/help-circle.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.actionHelp.setIcon(icon5)
+        self.actionHelp.triggered.connect(lambda : self.web_ressources('https://github.com/Koo-Kie/CSVeditor/issues'))
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_4 = QVBoxLayout(self.centralwidget)
@@ -90,6 +93,7 @@ class Ui_MainWindow(QMainWindow):
         self.italic_button.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.gridLayout.addWidget(self.italic_button, 0, 0, 1, 1)
+        self.italic_button.clicked.connect(lambda : self.style_item('italic'))
 
         self.bold_button = QPushButton(self.header)
         self.bold_button.setObjectName(u"bold_button")
@@ -100,6 +104,7 @@ class Ui_MainWindow(QMainWindow):
         self.bold_button.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.gridLayout.addWidget(self.bold_button, 0, 1, 1, 1)
+        self.bold_button.clicked.connect(lambda : self.style_item('bold'))
 
         self.normal_button = QPushButton(self.header)
         self.normal_button.setObjectName(u"normal_button")
@@ -109,6 +114,7 @@ class Ui_MainWindow(QMainWindow):
         self.normal_button.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.gridLayout.addWidget(self.normal_button, 0, 2, 1, 1)
+        self.normal_button.clicked.connect(lambda : self.style_item('normal'))
 
         self.font_size = QSpinBox(self.header)
         self.font_size.setObjectName(u"font_size")
@@ -117,6 +123,7 @@ class Ui_MainWindow(QMainWindow):
         self.font_size.setValue(9)
 
         self.gridLayout.addWidget(self.font_size, 0, 3, 1, 1)
+        self.font_size.valueChanged.connect(self.style_item)
 
         self.color_button = QPushButton(self.header)
         self.color_button.setObjectName(u"color_button")
@@ -126,6 +133,7 @@ class Ui_MainWindow(QMainWindow):
         self.color_button.setIcon(icon6)
 
         self.gridLayout.addWidget(self.color_button, 0, 4, 1, 1)
+        self.color_button.clicked.connect(lambda : self.style_item('color'))
 
 
         self.verticalLayout_4.addWidget(self.header)
@@ -173,56 +181,58 @@ class Ui_MainWindow(QMainWindow):
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
-        self.search_fields_2 = QFrame(self.footer)
-        self.search_fields_2.setObjectName(u"search_fields_2")
-        self.search_fields_2.setFrameShape(QFrame.StyledPanel)
-        self.search_fields_2.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_2 = QHBoxLayout(self.search_fields_2)
+        self.search_fields = QFrame(self.footer)
+        self.search_fields.setObjectName(u"search_fields")
+        self.search_fields.setFrameShape(QFrame.StyledPanel)
+        self.search_fields.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_2 = QHBoxLayout(self.search_fields)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.search_label_2 = QLabel(self.search_fields_2)
+        self.search_label_2 = QLabel(self.search_fields)
         self.search_label_2.setObjectName(u"search_label_2")
         self.search_label_2.setFont(font2)
 
         self.horizontalLayout_2.addWidget(self.search_label_2)
 
-        self.search_input_2 = QLineEdit(self.search_fields_2)
-        self.search_input_2.setObjectName(u"search_input_2")
-        self.search_input_2.setFont(font2)
-        self.search_input_2.setFrame(False)
-        self.search_input_2.setClearButtonEnabled(False)
+        self.search_input = QLineEdit(self.search_fields)
+        self.search_input.setObjectName(u"search_input")
+        self.search_input.setFont(font2)
+        self.search_input.setFrame(False)
+        self.search_input.setClearButtonEnabled(False)
 
-        self.horizontalLayout_2.addWidget(self.search_input_2)
+        self.horizontalLayout_2.addWidget(self.search_input)
+        self.search_input.textChanged.connect(lambda : self.research('search'))
 
-        self.occurence_label_2 = QLabel(self.search_fields_2)
-        self.occurence_label_2.setObjectName(u"occurence_label_2")
-        self.occurence_label_2.setFont(font2)
+        self.occurence_label = QLabel(self.search_fields)
+        self.occurence_label.setObjectName(u"occurence_label")
+        self.occurence_label.setFont(font2)
 
-        self.horizontalLayout_2.addWidget(self.occurence_label_2)
+        self.horizontalLayout_2.addWidget(self.occurence_label)
 
-        self.replace_label_2 = QLabel(self.search_fields_2)
-        self.replace_label_2.setObjectName(u"replace_label_2")
-        self.replace_label_2.setFont(font2)
+        self.replace_label = QLabel(self.search_fields)
+        self.replace_label.setObjectName(u"replace_label")
+        self.replace_label.setFont(font2)
 
-        self.horizontalLayout_2.addWidget(self.replace_label_2)
+        self.horizontalLayout_2.addWidget(self.replace_label)
 
-        self.replace_input_2 = QLineEdit(self.search_fields_2)
-        self.replace_input_2.setObjectName(u"replace_input_2")
-        self.replace_input_2.setFont(font2)
-        self.replace_input_2.setFrame(False)
+        self.replace_input = QLineEdit(self.search_fields)
+        self.replace_input.setObjectName(u"replace_input")
+        self.replace_input.setFont(font2)
+        self.replace_input.setFrame(False)
 
-        self.horizontalLayout_2.addWidget(self.replace_input_2)
+        self.horizontalLayout_2.addWidget(self.replace_input)
 
-        self.replace_button_2 = QPushButton(self.search_fields_2)
-        self.replace_button_2.setObjectName(u"replace_button_2")
+        self.replace_button = QPushButton(self.search_fields)
+        self.replace_button.setObjectName(u"replace_button")
         font3 = QFont()
         font3.setPointSize(12)
-        self.replace_button_2.setFont(font3)
-        self.replace_button_2.setCursor(QCursor(Qt.PointingHandCursor))
+        self.replace_button.setFont(font3)
+        self.replace_button.setCursor(QCursor(Qt.PointingHandCursor))
 
-        self.horizontalLayout_2.addWidget(self.replace_button_2)
+        self.horizontalLayout_2.addWidget(self.replace_button)
+        self.replace_button.clicked.connect(lambda : self.research('replace'))
 
 
-        self.verticalLayout_3.addWidget(self.search_fields_2)
+        self.verticalLayout_3.addWidget(self.search_fields)
 
 
         self.verticalLayout_4.addWidget(self.footer)
@@ -438,6 +448,81 @@ class Ui_MainWindow(QMainWindow):
 
         # Store the file path for future reference
         self.filepath[self.stackedWidget.currentIndex()] = current_file_path
+    
+    def web_ressources(self, ressource):
+        webbrowser.open(ressource)
+
+    def style_item(*args):
+        try: 
+            self = args[0]
+            current_page_widget = self.stackedWidget.widget(self.stackedWidget.currentIndex())
+            current_table_widget = current_page_widget.findChild(QTableWidget)
+            if args[1] == 'italic':
+                for item in current_table_widget.selectedItems():
+                    font = item.font()
+                    font.setItalic(True)
+                    item.setFont(font)
+            elif args[1] == 'bold':
+                for item in current_table_widget.selectedItems():
+                    font = item.font()
+                    font.setBold(True)
+                    item.setFont(font)
+            elif args[1] == 'normal':
+                for item in current_table_widget.selectedItems():
+                    font = item.font()
+                    font.setBold(False)
+                    font.setItalic(False)
+                    item.setFont(font)
+            elif args[1] == 'color':
+                dialog = QColorDialog()
+                if dialog.exec() == QColorDialog.Accepted:
+                    selected_color = dialog.currentColor()
+                    for item in current_table_widget.selectedItems():
+                        item.setForeground(QColor(selected_color.name()))
+            elif type(args[1]) == int:
+                for item in current_table_widget.selectedItems():
+                    font = item.font()
+                    font.setPointSize(args[1])
+                    item.setFont(font)       
+        except:
+            pass
+
+    def research(*args):
+        self = args[0]
+        current_page_widget = self.stackedWidget.widget(self.stackedWidget.currentIndex())
+        current_table_widget = current_page_widget.findChild(QTableWidget)
+        if args[1] == 'search':
+            query = self.search_input.text()
+            occurences = 0
+            if query:
+                for row in range(current_table_widget.rowCount()):
+                    for column in range(current_table_widget.columnCount()):
+                        cell = current_table_widget.item(row, column)
+                        if cell is not None:
+                            if cell.text() == query:
+                                occurences += 1
+                                cell.setBackground(QColor("yellow"))
+                            else:
+                                cell.setBackground(QBrush())
+            else:
+                for row in range(current_table_widget.rowCount()):
+                    for column in range(current_table_widget.columnCount()):
+                        cell = current_table_widget.item(row, column)
+                        if cell is not None:
+                            cell.setBackground(QBrush())
+
+            self.occurence_label.setText(str(occurences))
+        elif args[1] == 'replace':
+            query = self.search_input.text()
+            new_value = self.replace_input.text()
+            for row in range(current_table_widget.rowCount()):
+                for column in range(current_table_widget.columnCount()):
+                    cell = current_table_widget.item(row, column)
+                    if cell is not None:
+                        if cell.text() == query:
+                            cell.setText(new_value)
+                            cell.setBackground(QBrush())
+
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"CSVeditor by Kais and Adam", None))
@@ -466,10 +551,10 @@ class Ui_MainWindow(QMainWindow):
         self.color_button.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QCoreApplication.translate("MainWindow", u"Table 1", None))
         self.search_label_2.setText(QCoreApplication.translate("MainWindow", u"Search:", None))
-        self.occurence_label_2.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.replace_label_2.setText(QCoreApplication.translate("MainWindow", u"Replace by:", None))
-        self.replace_input_2.setText("")
-        self.replace_button_2.setText(QCoreApplication.translate("MainWindow", u"Replace all", None))
+        self.occurence_label.setText(QCoreApplication.translate("MainWindow", u"0", None))
+        self.replace_label.setText(QCoreApplication.translate("MainWindow", u"Replace by:", None))
+        self.replace_input.setText("")
+        self.replace_button.setText(QCoreApplication.translate("MainWindow", u"Replace all", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
     # retranslateUi
