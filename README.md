@@ -6,7 +6,7 @@ CSV Editor is a Python application that allows you to edit CSV files with a mode
 
 To install CSV Editor, follow these steps:
 
-1. Clone the repository using Git:
+1. Clone the repository using Git or by installing the zip file:
 
 ```
 git clone https://github.com/Koo-Kie/CSVeditor.git
